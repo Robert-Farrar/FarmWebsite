@@ -1,11 +1,14 @@
+import time
+from sqlalchemy.exc import OperationalError
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from typing import Optional
 
-
 base = declarative_base()
+
+
 
 class Customers(base):
     __tablename__ = "Customers"
@@ -33,6 +36,8 @@ databaseURL = "mysql+pymysql://user:pass@127.0.0.1:3306/Customer"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)
+
+
 
 def getSession():
     db = sessionLocal()
@@ -76,3 +81,19 @@ def insertCustomer(username: str, passwrd: str, fullName: str, email: str, custo
     db.commit()
 
     return customer
+
+
+def getSession():
+    retries = 5  
+    db = None
+    while retries > 0:
+        try:
+            db = sessionLocal()
+            yield db
+            break 
+        except OperationalError:
+            print("Database not ready yet. Retrying in 5 seconds...")
+            time.sleep(5)
+            retries -= 1
+    if db is None:
+        raise Exception("Could not connect to database after multiple attempts.")
