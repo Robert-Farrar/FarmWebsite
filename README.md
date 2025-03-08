@@ -4,7 +4,7 @@
 FarmWebsite is a full-stack application using a microservices architecture, where each major table has its own container, along with a FastAPI-based API and a MariaDB database instance.
 
 ## Architecture
-The application consists of multiple containers, each responsible for managing a specific database table and providing API endpoints for interaction. Below is a breakdown of the containers and their respective tables:
+The application consists of multiple containers, each responsible for managing a specific database table and using API's for interaction. 
 
 ### **1. Customers Container**
 - **Table:** Customers
