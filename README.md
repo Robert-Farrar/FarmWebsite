@@ -1,4 +1,4 @@
-# # FarmWebsite
+# FarmWebsite
 
 ## Overview
 FarmWebsite is a full-stack application using a microservices architecture, where each major table has its own container, along with a FastAPI-based API and a MariaDB database instance.
@@ -94,34 +94,5 @@ The application consists of multiple containers, each responsible for managing a
   - Update inventory stock
   - Retrieve inventory details for a store
 
-## Deployment
-- The project uses **Docker Compose** to manage all containers.
-- Each microservice runs its own MariaDB database and FastAPI instance.
-- Communication between containers is handled via Docker networking.
 
-## Getting Started
-### **Prerequisites**
-- Install [Docker](https://www.docker.com/)
-- Install [Docker Compose](https://docs.docker.com/compose/)
-
-### **Setup and Run**
-1. Clone this repository:
-   ```sh
-   git clone https://github.com/yourusername/FarmWebsite.git
-   cd FarmWebsite
-   ```
-2. Build and start the containers:
-   ```sh
-   docker-compose up --build
-   ```
-3. Access API endpoints via:
-   ```sh
-   http://localhost:<assigned-port>
-   ```
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-## License
-This project is licensed under the MIT License.
 
