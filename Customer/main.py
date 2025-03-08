@@ -29,7 +29,7 @@ class Customer(BaseModel):
 
 app = FastAPI()
 
-databaseURL = "mariadb://user:pass@localhost/Customer"
+databaseURL = "mysql+pymysql://user:pass@127.0.0.1:3306/Customer"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)
