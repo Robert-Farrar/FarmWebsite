@@ -54,7 +54,7 @@ app = FastAPI()
 def on_startup():
     createDbAndTables()
 
-#working
+#Should be done
 @app.post("/storeItem/storeID/{storeID}/itemID/{itemID}/inStock/{inStock}/storeItemQuantity/{storeItemQuantity}")
 def insertStoreItem(storeID: int, itemID: int, inStock: str, storeItemQuantity:int,db:Session = Depends(getSession)):
 
@@ -85,3 +85,14 @@ def getItem(storeID: int,itemID: int, db: Session = Depends(getSession)):
 
     return item.__dict__
 
+@app.put("/storeItem/storeID/{storeID}/itemID/{itemID}/storeItemQuantity/{storeItemQuantity}")
+def updateItemQty(storeID: int,itemID: int, storeItemQuantity: int, db: Session = Depends(getSession)):
+     item = db.query(StoreInventoryItem).filter(StoreInventoryItem.storeID == storeID).filter(StoreInventoryItem.itemID == itemID).first()
+     if storeItemQuantity == 0:
+        item.inStock = 'N'
+        item.storeItemQuantity =storeItemQuantity
+     else:
+        item.inStock = 'Y'
+        item.storeItemQuantity =storeItemQuantity
+    
+     return item.__dict__
