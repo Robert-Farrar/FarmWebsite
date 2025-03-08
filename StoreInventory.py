@@ -54,7 +54,7 @@ app = FastAPI()
 def on_startup():
     createDbAndTables()
 
-#Should be done
+#working
 @app.post("/storeItem/storeID/{storeID}/itemID/{itemID}/inStock/{inStock}/storeItemQuantity/{storeItemQuantity}")
 def insertStoreItem(storeID: int, itemID: int, inStock: str, storeItemQuantity:int,db:Session = Depends(getSession)):
 
@@ -69,17 +69,19 @@ def insertStoreItem(storeID: int, itemID: int, inStock: str, storeItemQuantity:i
     db.refresh(item)
     return item
 
-#needs work
+#working
 @app.get("/store/storeID/{storeID}")
 def readStoreInventory(storeID:int,db:Session = Depends(getSession)):
-    stmt = select(StoreInventoryItem).where(StoreInventoryItem.storeID == storeID).order_by(StoreInventoryItem.itemID)
-    result = db.execute(stmt).all()
-    [print(dict(row.__dict__)) for row in result]
-    return
-
+    stmt = select(StoreInventoryItem)
+    result = db.query(StoreInventoryItem).filter(StoreInventoryItem.storeID == storeID)
+    inventory = []
+    [inventory.append(row.__dict__) for row in result]
+    return inventory
+    
+#working
 @app.get("/store/storeID/{storeID}/itemID/{itemID}")
 def getItem(storeID: int,itemID: int, db: Session = Depends(getSession)):
     item = db.query(StoreInventoryItem).filter(StoreInventoryItem.storeID == storeID).filter(StoreInventoryItem.itemID == itemID).first()
-    print(item.storeID)
+
     return item.__dict__
 
