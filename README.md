@@ -1,7 +1,7 @@
 # FarmWebsite
 
 ## Overview
-FarmWebsite is a full-stack application using a microservices architecture, where each major table has its own container, along with a FastAPI-based API and a MariaDB database instance.
+LionOrder Salads is a full-stack application using a microservices architecture, where each major table has its own container, along with a FastAPI-based API and a MariaDB database instance.
 
 ## Architecture
 The application consists of multiple containers, each responsible for managing a specific database table and using API's for interaction. 
