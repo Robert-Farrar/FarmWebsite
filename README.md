@@ -1,4 +1,4 @@
-# FarmWebsite
+# LionOrder Salads
 
 ## Overview
 LionOrder Salads is a full-stack application using a microservices architecture, where each major table has its own container, along with a FastAPI-based API and a MariaDB database instance.
