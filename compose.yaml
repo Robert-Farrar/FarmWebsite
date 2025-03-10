@@ -10,6 +10,8 @@ services:
       MYSQL_DATABASE: database
       MYSQL_USER: user
       MYSQL_PASSWORD: password
+    networks:
+      - mynetwork
     ports:
       - "3306:3306"
     volumes:
@@ -29,6 +31,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - mynetwork
     ports:
       - "8002:8000"
     environment:
@@ -43,6 +47,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - mynetwork
     ports:
       - "8003:8000"
     environment:
@@ -57,21 +63,28 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - mynetwork
     ports:
       - "8004:8000"
     environment:
       DATABASE_URL: "mysql+pymysql://user:password@db:3306/database"
     command: >
       sh -c "sleep 10 && uvicorn main:app --host 0.0.0.0 --port 8000"
-      
+
   webpage:
     build: ./webpage
     container_name: webpage
     restart: always
     depends_on:
-      - db
+      - customer-api
+    networks:
+      - mynetwork
     ports:
      - "8080:80"
 
 volumes:
   db_data:
+
+networks:
+  mynetwork:

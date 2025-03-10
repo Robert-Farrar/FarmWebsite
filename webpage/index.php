@@ -5,7 +5,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST["username"]);
     $password = trim($_POST["passwrd"]);
 
-    $api_url = "http://customer:8000/username/$username/password/$password";
+    $api_url = "http://customer-api:8002/username/$username/password/$password";
 
     $response = file_get_contents($api_url);
     $result = json_decode($response, true);
