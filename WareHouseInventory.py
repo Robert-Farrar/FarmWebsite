@@ -60,10 +60,10 @@ def on_startup():
     createDbAndTables()
 
 #Should be done 
-@app.post("wareHouseItem/storageID/{storageID}/itemName/{itemName}/itemDescription/{itemDescription}/itemQuantity/{itemQuantity}/itemImage/{itemImage}/itemImageType/{itemImageType}")
-def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQuantity:int,itemImage:str,db:Session = Depends(getSession)):
+@app.post("/wareHouseItem/storageID/{storageID}/itemName/{itemName}/itemDescription/{itemDescription}/itemQuantity/{itemQuantity}/itemImage/{itemImage}/itemImageType/{itemImageType}")
+def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQuantity:int,itemImage:str,itemImageType: str,db:Session = Depends(getSession)):
 
-    item = wareHouseItem()
+    item = WareHouseItem()
     item.storageID = storageID
     item.itemName = itemName
     item.itemDescription = itemDescription
@@ -77,15 +77,15 @@ def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQ
     return item
     
 #working
-@app.get("warehouse/itemID/{itemID}")
+@app.get("/warehouse/itemID/{itemID}")
 def getItem(itemID: int, db: Session = Depends(getSession)):
-    item = db.query(wareHouseItem).filter(wareHouseItem.itemID() == itemID).first()
+    item = db.query(WareHouseItem).filter(WareHouseItem.itemID() == itemID).first()
 
     return item.__dict__
 
-@app.put("wareHouseItem/itemID/{itemID}/itemQuantity/{itemQuantity}")
+@app.put("/wareHouseItem/itemID/{itemID}/itemQuantity/{itemQuantity}")
 def updateItemQty(itemID: int, itemQuantity: int, db: Session = Depends(getSession)):
-     item = db.query(wareHouseItem).filter(wareHouseItem.itemID == itemID).first()
+     item = db.query(WareHouseItem).filter(WareHouseItem.itemID == itemID).first()
      item.itemQuantity = itemQuantity
     
      return item.__dict__
