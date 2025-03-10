@@ -17,8 +17,7 @@ class Item(BaseModel):
    itemName: str
    itemDescription: str
    itemQuantity: int
-   itemImage: str
-   itemImageType: str
+   itemImagePath: str
 
 
 
@@ -26,11 +25,10 @@ class WareHouseItem(Base):
     __tablename__ = "WareHouseInventory"
     itemID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     storageID:  Mapped[int] = mapped_column(index=True)
-    itemName: Mapped[str] = mapped_column(String(255))
+    itemName: Mapped[str] = mapped_column(String(255),index=True, unique=True)
     itemDescription: Mapped[str] = mapped_column(String(255))
     itemQuantity: Mapped[int]= mapped_column(Integer)
-    itemImage: Mapped[bytes] = mapped_column(LargeBinary)
-    itemImageType: Mapped[str] = mapped_column(String(100))
+    itemImagePath: Mapped[Optional[str]] = mapped_column(String(255))
     
 mariadbCon = "mariadb://pmaUser:pma@127.0.0.1/WareHouseInventory"
 engine = create_engine(mariadbCon)
@@ -54,38 +52,39 @@ def getSession():
         db.close()
 
 
-app = FastAPI()
+app = FastAPI(max_body_size=52428800)
 @app.on_event("startup")
 def on_startup():
     createDbAndTables()
 
+
 #Should be done 
-@app.post("/wareHouseItem/storageID/{storageID}/itemName/{itemName}/itemDescription/{itemDescription}/itemQuantity/{itemQuantity}/itemImage/{itemImage}/itemImageType/{itemImageType}")
-def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQuantity:int,itemImage:str,itemImageType: str,db:Session = Depends(getSession)):
+@app.post("/wareHouseItem/storageID/{storageID}/itemName/{itemName}/itemDescription/{itemDescription}/itemQuantity/{itemQuantity}/itemImagePath/{itemImagePath}")
+def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQuantity:int, itemImagePath:str, db:Session = Depends(getSession)):
 
     item = WareHouseItem()
     item.storageID = storageID
     item.itemName = itemName
     item.itemDescription = itemDescription
     item.itemQuantity = itemQuantity
-    item.itemImage = itemImage
-    item.itemImageType = itemImageType
+    item.itemImagePath = itemImagePath
    
     db.add(item)
     db.commit()
     db.refresh(item)
-    return item
+    return {'Message' : "Item was Inserted"}
     
 #working
 @app.get("/warehouse/itemID/{itemID}")
 def getItem(itemID: int, db: Session = Depends(getSession)):
-    item = db.query(WareHouseItem).filter(WareHouseItem.itemID() == itemID).first()
-
+    item = db.query(WareHouseItem).filter(WareHouseItem.itemID == itemID).first()
     return item.__dict__
-
-@app.put("/wareHouseItem/itemID/{itemID}/itemQuantity/{itemQuantity}")
-def updateItemQty(itemID: int, itemQuantity: int, db: Session = Depends(getSession)):
-     item = db.query(WareHouseItem).filter(WareHouseItem.itemID == itemID).first()
-     item.itemQuantity = itemQuantity
     
+
+@app.put("/wareHouseItem/itemName/{itemName}/itemQuantity/{itemQuantity}")
+def updateItemQty(itemName: str, itemQuantity: int, db: Session = Depends(getSession)):
+     item = db.query(WareHouseItem).filter(WareHouseItem.itemName == itemName).first()
+     item.itemQuantity = itemQuantity
      return item.__dict__
+     
+     
