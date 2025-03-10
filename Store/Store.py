@@ -21,7 +21,7 @@ class Stores(Base):
     storeID:  Mapped[int] = mapped_column(Integer, primary_key=True,index=True)
     storeLocation:   Mapped[str] = mapped_column(String(100), index=True)
 
-mariadbCon = "mariadb://pmaUser:pma@127.0.0.1/Store"
+mariadbCon = "mysql+pymysql://user:password@mysql-db:3306/database"
 engine = create_engine(mariadbCon)
 if not database_exists(engine.url):
     create_database(engine.url)

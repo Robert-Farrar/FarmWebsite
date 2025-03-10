@@ -1,21 +1,27 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', "1");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
     $username = trim($_POST["username"]);
-    $password = trim($_POST["passwrd"]);
+    $password = trim($_POST["passwrd"]); 
 
     $api_url = "http://customer-api:8002/username/$username/password/$password";
 
-    $response = file_get_contents($api_url);
-    $result = json_decode($response, true);
-
-    if (isset($result['customerID'])) {
-        $_SESSION['customerID'] = $result['customerID'];
-        header("Location: home.php");
-        exit();
+    $response = @file_get_contents($api_url);
+    if ($response === FALSE) {
+        $error_message = "Error connecting to authentication service.";
     } else {
-        $error_message = "Invalid username or password.";
+        $result = json_decode($response, true);
+
+        if (isset($result['customerID'])) {
+            $_SESSION['customerID'] = $result['customerID'];
+            header("Location: home.php");
+            exit();
+        } else {
+            $error_message = "Invalid username or password.";
+        }
     }
 }
 
@@ -23,21 +29,21 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
 }
 
-if (isset($_POST['add_to_cart'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_to_cart'])) {
     $item = $_POST['item'];
 
     if (isset($_SESSION['cart'][$item])) {
-        $_SESSION['cart'][$item] = $_SESSION['cart'][$item] + 1;
+        $_SESSION['cart'][$item]++;
     } else {
         $_SESSION['cart'][$item] = 1; 
     }
 }
 
-if (isset($_POST['clear_cart'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['clear_cart'])) {
     $_SESSION['cart'] = array();
 }
 
-if (isset($_POST['checkout'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['checkout'])) {
     header("Location: orderConfirmation.php");
     exit();
 }

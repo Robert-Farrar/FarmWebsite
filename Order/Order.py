@@ -11,7 +11,7 @@ class Orders(base):
     __tablename__ = "Orders"
     orderID = Column(Integer, primary_key = True, index = True)
     customerID = Column(Integer)
-    orderStatus = Column(String)
+    orderStatus = Column(String(255))
     orderDateCreated = Column(DateTime)
 
 class OrderLists(base):
@@ -33,7 +33,7 @@ class OrderList(BaseModel):
 
 app = FastAPI()
 
-databaseURL = "mariadb://user:pass@localhost/Orders"
+databaseURL = "mysql+pymysql://user:password@mysql-db:3306/database"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)

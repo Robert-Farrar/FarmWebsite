@@ -27,7 +27,7 @@ class StoreInventoryItem(Base):
     inStock: Mapped[str] = mapped_column(String(1))
     storeItemQuantity: Mapped[int]= mapped_column(Integer)
     
-mariadbCon = "mariadb://pmaUser:pma@127.0.0.1/StoreInventory"
+mariadbCon = "mysql+pymysql://user:password@mysql-db:3306/database"
 engine = create_engine(mariadbCon)
 if not database_exists(engine.url):
     create_database(engine.url)

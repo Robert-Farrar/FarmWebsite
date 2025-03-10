@@ -30,7 +30,7 @@ class Customer(BaseModel):
 
 app = FastAPI()
 
-databaseURL = "mysql+pymysql://user:pass@customer:3306/Customer"
+databaseURL = "mysql+pymysql://user:pass@mysql-db:3306/database"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)

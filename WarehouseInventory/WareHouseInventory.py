@@ -19,8 +19,6 @@ class Item(BaseModel):
    itemQuantity: int
    itemImagePath: str
 
-
-
 class WareHouseItem(Base):
     __tablename__ = "WareHouseInventory"
     itemID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
