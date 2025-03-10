@@ -1,11 +1,13 @@
 
 <?php
-function base64url_encode($s) {
-    return str_replace(array('+', '/'), array('-', '_'), base64_encode($s));
+function url_encode($string){
+    $string = base64_encode($string);
+    return urlencode(utf8_encode($string));
 }
 
-function base64url_decode($s) {
-    return base64_decode(str_replace(array('-', '_'), array('+', '/'), $s));
+function url_decode($string){
+    $string = utf8_decode(urldecode($string));
+    return base64_decode($string);
 }
 class Item{
     public $storageID = 0;
@@ -28,11 +30,33 @@ class Item{
         return $json;
     }
 }
+class InsertItem{
+
+    public $storageID = 0;
+    public $itemName = "";
+    public $itemDescription= '';
+    public $itemQuantity = 0;
+    public $itemImagePath = "";
+    function __construct($storageID,$itemName,$itemDescription,$itemQuantity,$itemImagePath){
+        $this->storageID = $storageID;
+        $this->itemName = $itemName;
+        $this->itemDescription= $itemDescription;
+        $this->itemQuantity = $itemQuantity;
+        $this->itemImagePath = $itemImagePath;
+    }
+
+    public function toJson(){
+        #$data = array('storeItemID' => null, 'storeID' => $this->storeID, 'itemID' => $this->itemID, 'inStock' => $this -> inStock, 'storeItemQuantity' => $this -> storeItemQuantity);
+        $json = json_encode($this);
+        return $json;
+    }
+}
 class UpdateItemQty{
     private $itemID = 0;
     public $itemQuantity = 0;
     function __construct($itemID,$itemQuantity){
         $this->itemID = $itemID;
+        $this->itemQuantity = $itemQuantity;
         $this->itemQuantity = $itemQuantity;
     }    
     public function toJson(){
@@ -48,80 +72,94 @@ class WareHouseInventoryController{
         print("A new WHIC has been created!\n");
     }
     #
-    public function createWareHouseItem($storageID,$itemName,$itemDescription,$itemQuantity,$itemImagePath){
-
-        $type = pathinfo($itemImagePath, PATHINFO_EXTENSION);
-        $data = file_get_contents($itemImagePath);
-        $itemImage = base64url_encode($data);
-     
-        $item = new Item($storageID,$itemName,$itemDescription,$itemQuantity,$itemImage,$type);
+    public function createWareHouseItem($storageID,$itemName,$itemDescription,$itemQuantity,$Path){
+        $ch = curl_init();
+        $itemDescription = urlencode($itemDescription);
+        $itemImagePath = url_encode($Path);
+        echo $itemImagePath;
+        $item = new InsertItem($storageID,$itemName,$itemDescription,$itemQuantity,$itemImagePath);
         
         $json = $item->toJson();
-
+        $json_output = json_decode($json, true); 
+        echo $json_output['itemImagePath'];
         
         
-        $path = $this->url."wareHouseItem/storageID/".$storageID."/itemName/".$itemName."/itemDescription/".$itemDescription."/itemQuantity/".$itemQuantity."/itemImage/".$itemImage."/itemImageType/".$type;
+        $path = $this->url."wareHouseItem/storageID/".$storageID."/itemName/".$itemName."/itemDescription/".$itemDescription."/itemQuantity/".$itemQuantity."/itemImagePath/{$itemImagePath}";
         #echo $path;
         
-        $ch = curl_init();
+        
         curl_setopt($ch,CURLOPT_URL,$path);
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-        curl_setopt($ch,CURLOPT_POST,TRUE);
+       # curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        #curl_setopt($ch,CURLOPT_POST,TRUE);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$json);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         
         $result = curl_exec($ch);
-        curl_close($ch);
+        if (curl_errno($ch)) {
+            echo 'From: InsertItem, Error: ' . curl_error($ch);
+        }
+
         $data = json_decode($result,false);
-        echo $data;
+        curl_close($ch);
+        echo json_encode($data);
+        $info = curl_getinfo($ch);
+        echo $info['url'];
       
         return $data;
     }
     
     #Returns dictionary
     public function getItem($itemID){
-        $path = $this->url."warehouse/itemID"."/".$itemID;
+        $path = $this->url."warehouse/itemID/".$itemID;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $path);
         curl_setopt($ch,CURLOPT_CUSTOMREQUEST,'GET');
         curl_setopt($ch,CURLOPT_POSTFIELDS,$itemID);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $result = curl_exec($ch);
-        $data = json_decode($result,true);
-        $data = json_encode($data);
-        echo($data['itemID']['itemName']);
-        $data['itemImage'] = "data:image/".$type.base64url_decode($data['itemImage']);
+        $data = json_decode($result,TRUE);
+        if(array_key_exists('itemImagePath',$data)){
+            $data['itemImagePath'] = url_decode($data['itemImagePath']);
+        }
+        if(array_key_exists('itemDescription',$data)){
+            $data['itemDescription'] = urldecode( $data['itemDescription']);
+        }
+        
+       
         return $data;
 
     }
 
     public function updateWareHouseItemQuantity($itemID,$itemQuantity){
-        $item = new UpdateItem($itemID,$itemQuantity);
+        $item = new UpdateItemQTY($itemID,$itemQuantity);
         $json = $item->toJson();
 
-        
-        
-        $path = $this->url."wareHouseItem/itemID/".$itemID."/itemQuantity/".$itemQuantity;
+
+        $path = $this->url."wareHouseItem/itemName/".$itemID."/itemQuantity/".$itemQuantity;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $path);
         curl_setopt($ch,CURLOPT_CUSTOMREQUEST,'PUT');
-        curl_setopt($ch,CURLOPT_POSTFIELDS,http_build_query($json));
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$json);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $result = curl_exec($ch);
         $data = json_decode($result,true);
-        $data = json_encode($data);
+        
+
         echo("returned: ".$data['itemID']['itemName']);
         
         return $data;
     }
+
 }
 
 
-$whic = new WareHouseInventoryController();
+#$whic = new WareHouseInventoryController();
 
-$lettucePath = '/home/user/Documents/WareHouseInventory/Lettuce.png';
-$data = $whic->createWareHouseItem(12,'Lettuce','Lettuce Grown on our farm!',20,$lettucePath);
+#$Path = '/home/user/Documents/WareHouseInventory/Tomatoe.png';
+#$data = $whic->createWareHouseItem(15,'Tomatoe','Tomatoe Grown on our farm!',20,$Path);
 
 #$data = $whic->getItem(1);
-echo $data
+
+#$data = $whic->updateWareHouseItemQuantity("Lettuce",10);
+#echo var_dump($data);
 ?>
