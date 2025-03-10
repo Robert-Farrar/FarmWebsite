@@ -55,22 +55,26 @@ class WareHouseInventoryController{
         $itemImage = base64url_encode($data);
      
         $item = new Item($storageID,$itemName,$itemDescription,$itemQuantity,$itemImage,$type);
+        
         $json = $item->toJson();
 
         
         
         $path = $this->url."wareHouseItem/storageID/".$storageID."/itemName/".$itemName."/itemDescription/".$itemDescription."/itemQuantity/".$itemQuantity."/itemImage/".$itemImage."/itemImageType/".$type;
-        echo $path;
+        #echo $path;
         
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$path);
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch,CURLOPT_POST,TRUE);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$json);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         
         $result = curl_exec($ch);
-
-        $data = json_decode($result,true);
-        print("Successfully added new item to StoreInventory!");
+        curl_close($ch);
+        $data = json_decode($result,false);
+        echo $data;
+      
         return $data;
     }
     
@@ -86,7 +90,7 @@ class WareHouseInventoryController{
         $data = json_decode($result,true);
         $data = json_encode($data);
         echo($data['itemID']['itemName']);
-        $data['itemImage'] = base64url_decode($data['itemImage']);
+        $data['itemImage'] = "data:image/".$type.base64url_decode($data['itemImage']);
         return $data;
 
     }
@@ -116,5 +120,8 @@ class WareHouseInventoryController{
 $whic = new WareHouseInventoryController();
 
 $lettucePath = '/home/user/Documents/WareHouseInventory/Lettuce.png';
-$whic->createWareHouseItem(12,'Lettuce','Lettuce Grown on our farm!',20,$lettucePath);
+$data = $whic->createWareHouseItem(12,'Lettuce','Lettuce Grown on our farm!',20,$lettucePath);
+
+#$data = $whic->getItem(1);
+echo $data
 ?>
