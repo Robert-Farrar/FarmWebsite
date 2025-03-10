@@ -49,7 +49,6 @@ foreach ($_SESSION['cart'] as $quantity) {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                     <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
                 </ul>
                 <form class="d-flex">
                     <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#cartModal">

@@ -97,17 +97,13 @@ $cart_size = count($_SESSION['cart']);
             <div class="mb-3">
                 <label class="form-label">Shipping Address</label>
                 <textarea name="address" class="form-control" rows="3" required>
-                    <?php 
-                        if (isset($address)) { 
-                            echo htmlspecialchars($address); 
-                        } 
-                    ?></textarea>
+                    <?php if (isset($address)) { echo htmlspecialchars($address); } ?></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">Place Order</button>
         </form>
 
-        <a href="cart.php" class="btn btn-secondary mt-3">Go Back</a>
+        <a href="index.php" class="btn btn-secondary mt-3">Go Back</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
