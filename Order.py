@@ -18,6 +18,7 @@ class OrderLists(base):
     __tablename__ = "OrderList"
     orderID = Column(Integer, primary_key = True, index = True)
     storeInventoryItemID = Column(Integer, primary_key = True)
+    amountSold = Column(Integer)
 
 class Order(BaseModel):
     orderID: Optional[int] = None
@@ -28,7 +29,7 @@ class Order(BaseModel):
 class OrderList(BaseModel):
     orderID: int
     storeInventoryItemID: int
-
+    amountSold: int
 
 app = FastAPI()
 
@@ -57,7 +58,7 @@ def getOrderID(customerID: int, orderDateCreated: str, db:Session = Depends(getS
 
     return results
 
-@app.post("/customerID/{customerID}/orderStatus/{orderStatus}/orderDateCreated/{orderDateCreated}/")
+@app.post("/customerID/{customerID}/orderStatus/{orderStatus}/orderDateCreated/{orderDateCreated}")
 
 def createOrder(customerID: int, orderStatus: str, orderDateCreated: str, db:Session = Depends(getSession)):
 
@@ -76,9 +77,9 @@ def createOrder(customerID: int, orderStatus: str, orderDateCreated: str, db:Ses
 #avoid identical calls so orders is without grouping
 @app.get("/{orderID}")
 
-def getOrder(orderID: int, db:Session = Depends(getSession)):
+def getOrders(orderID: int, db:Session = Depends(getSession)):
 
-   return db.query(Orders).filter(Orders.orderID == orderID).first()
+   return db.query(Orders).filter(Orders.orderID == orderID).all()
 
 @app.get("/orderID/{orderID}")
 
@@ -86,14 +87,15 @@ def getOrderList(orderID: int, db:Session = Depends(getSession)):
 
     return db.query(OrderLists).filter(OrderLists.orderID == orderID).all()
 
-@app.get("orderID/{orderID}/storeInventoryItemID/{storeInventoryItemID}")
+@app.get("orderID/{orderID}/storeInventoryItemID/{storeInventoryItemID}/amountSold/{amountSold}")
 
-def createOrderList(orderID: int, storeInventoryItemID: int, db:Session = Depends(getSession)):
+def createOrderList(orderID: int, storeInventoryItemID: int, amountSold: int, db:Session = Depends(getSession)):
 
     orderList = OrderLists()
 
     orderList.orderID = orderID
     orderList.storeInventoryItemID = storeInventoryItemID
+    orderList.amountSold = amountSold
 
     db.add(orderList)
     db.commit()

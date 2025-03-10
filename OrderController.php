@@ -2,7 +2,7 @@
 
 class OrderController{
     function getOrderID($customerID, $orderDateCreated){
-        $url = "http://127.0.0.1:8000/customerID".$customerID."/orderDateCreated/".$orderDateCreated;
+        $url = "http://127.0.0.1:8000/customerID/".$customerID."/orderDateCreated/".$orderDateCreated;
 
         $ch = curl_init($ch);
 
@@ -11,12 +11,12 @@ class OrderController{
 
         $result = curl_exec($ch);
 
-        curl_close();
+        curl_close($ch);
 
         $data = json_decode($result, false);
 
         
-        return $data->{'orderID'};
+        return $data;
     }
 
     function createOrder($customerID, $orderStatus, $orderDateCreated){
@@ -31,11 +31,11 @@ class OrderController{
 
         $result = curl_exec($ch);
 
-        curl_close();
+        curl_close($ch);
 
     }
 
-    function getOrder($orderID){
+    function getOrders($orderID){
         $url = "http://127.0.0.1:8000/".$orderID;
 
         $ch = curl_init($ch);
@@ -43,22 +43,27 @@ class OrderController{
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $result = curl_exec($ch);
+        $output = curl_exec($ch);
 
-        curl_close();
+        $result = json_decode($output);
 
-        $data = json_decode($result, false);
+        curl_close($ch);
 
-           
-        $order = new Order();
+        $data = [];
 
-        $order->orderID = $data->{'orderID'};
-        $order->customerID = $data->{'customerID'};
-        $order->orderStatus = $data->{'orderStatus'};
-        $order->orderDateCreated = $data->{'orderDateCreated'};
+        for($i = 0; $i < count($result); $i++){
+            $list = new Order();
+            $list->orderID = $result[$i]->{'orderID'};
+            $list->customerID = $result[$i]->{'customerID'};
+            $list->orderStatus = $result[$i]->{'orderStatus'};
+            $list->orderDateCreated = $result[$i]->{'orderDateCreated'};
 
-        return $order;
+            $data[$i] = $list;
+        }
+
+        return $data;
     }
+
 
 
 }
@@ -76,7 +81,7 @@ class OrderListController{
 
         $result = json_decode($output);
 
-        curl_close();
+        curl_close($ch);
 
         $data = [];
 
@@ -84,6 +89,7 @@ class OrderListController{
             $list = new OrderList();
             $list->orderID = $result[$i]->{'orderID'};
             $list->storeInventoryItemID = $result[$i]->{'storeInventoryItemID'};
+            $list->amountSold = $result[$i]->{'amountSold'};
 
             $data[$i] = $list;
         }
@@ -91,8 +97,8 @@ class OrderListController{
         return $data;
     }
 
-    function createOrderList($orderID, $storeInventoryItemID){
-        $url = "http://127.0.0.1:8000/orderID/".$orderID."/storeInventoryItemID/".$storeInventoryItemID;
+    function createOrderList($orderID, $storeInventoryItemID, $amountSold){
+        $url = "http://127.0.0.1:8000/orderID/".$orderID."/storeInventoryItemID/".$storeInventoryItemID."/amountSold/".$amountSold;
 
         $ch = curl_init($ch);
 
@@ -101,20 +107,21 @@ class OrderListController{
 
         $result = curl_exec($ch);
 
-        curl_close();
+        curl_close($ch);
     }
 }
 
 //container classes to make it easier to pass info
 
 class Order{
-$orderID;
-$customerID;
-$orderStatus;
-$orderDateCreated;
+
+public $orderID;
+public $customerID;
+public $orderStatus;
+public $orderDateCreated;
 }
 
 class OrderList{
-$orderID;
-$storeInventoryItemID;
+public $orderID;
+public $storeInventoryItemID;
 }
