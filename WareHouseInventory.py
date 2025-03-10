@@ -75,15 +75,16 @@ def insertWareHouseItem(storageID: str, itemName: str,itemDescription:str, itemQ
     return {'Message' : "Item was Inserted"}
     
 #working
-@app.get("/warehouse/itemName/{itemName}")
-def getItem(itemName: str, db: Session = Depends(getSession)):
-    item = db.query(WareHouseItem).filter(WareHouseItem.itemName == itemName).first()
+@app.get("/warehouse/itemID/{itemID}")
+def getItem(itemID: int, db: Session = Depends(getSession)):
+    item = db.query(WareHouseItem).filter(WareHouseItem.itemID == itemID).first()
     return item.__dict__
     
 
 @app.put("/wareHouseItem/itemName/{itemName}/itemQuantity/{itemQuantity}")
 def updateItemQty(itemName: str, itemQuantity: int, db: Session = Depends(getSession)):
      item = db.query(WareHouseItem).filter(WareHouseItem.itemName == itemName).first()
+     item.itemQuantity = itemQuantity
      return item.__dict__
      
      
