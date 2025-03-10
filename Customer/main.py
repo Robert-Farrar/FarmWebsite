@@ -8,8 +8,6 @@ from typing import Optional
 
 base = declarative_base()
 
-
-
 class Customers(base):
     __tablename__ = "Customers"
     customerID = Column(Integer, primary_key=True, index=True)
@@ -32,7 +30,7 @@ class Customer(BaseModel):
 
 app = FastAPI()
 
-databaseURL = "mysql+pymysql://user:pass@127.0.0.1:3306/Customer"
+databaseURL = "mysql+pymysql://user:pass@customer:3306/Customer"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)

@@ -1,6 +1,24 @@
 <?php
 session_start();
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST["username"]);
+    $password = trim($_POST["passwrd"]);
+
+    $api_url = "http://customer:8000/username/$username/password/$password";
+
+    $response = file_get_contents($api_url);
+    $result = json_decode($response, true);
+
+    if (isset($result['customerID'])) {
+        $_SESSION['customerID'] = $result['customerID'];
+        header("Location: home.php");
+        exit();
+    } else {
+        $error_message = "Invalid username or password.";
+    }
+}
+
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
 }
@@ -56,6 +74,7 @@ foreach ($_SESSION['cart'] as $quantity) {
                         Cart <span class="badge bg-dark text-white ms-1 rounded-pill"><?php echo $cartCount; ?></span>
                     </button>
                 </form>
+                <a href="logout.php" class="btn btn-danger ms-2">Logout</a>
             </div>
         </div>
     </nav>
