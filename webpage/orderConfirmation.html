@@ -8,36 +8,100 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4">Order Confirmation</h2>
-        <ul id="order-items" class="list-group"></ul> <!-- Order details go here -->
-        <button onclick="window.history.back()" class="btn btn-primary mt-3">Go Back</button>
+        <h2>Order Confirmation</h2>
+
+        <!-- Cart Summary -->
+        <h4>Your Cart:</h4>
+        <ul id="order-items" class="list-group"></ul>
+
+        <hr>
+
+        <!-- User Details Form -->
+        <h4>Shipping Details:</h4>
+        <form id="order-form">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Shipping Address</label>
+                <textarea id="address" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Place Order</button>
+        </form>
+
+        <!-- Back Button -->
+        <button onclick="window.history.back()" class="btn btn-secondary mt-3">Go Back</button>
     </div>
 
     <script>
-        // Get cart data from URL parameters
+        // Function to get cart data from the URL
         function getCartFromURL() {
             var params = new URLSearchParams(window.location.search);
             var cartData = params.get("cart");
-            return cartData ? JSON.parse(decodeURIComponent(cartData)) : {};
+
+            if (cartData) {
+                return JSON.parse(decodeURIComponent(cartData));
+            }
+
+            return {};
         }
 
+        // Function to display the cart items
         function displayOrder() {
             var cart = getCartFromURL();
             var orderList = document.getElementById("order-items");
 
             if (Object.keys(cart).length === 0) {
-                orderList.innerHTML = "<li class='list-group-item'>Your cart is empty.</li>";
+                var listItem = document.createElement("li");
+                listItem.className = "list-group-item";
+                listItem.textContent = "Your cart is empty.";
+                orderList.appendChild(listItem);
                 return;
             }
 
             for (var item in cart) {
-                var listItem = document.createElement("li");
-                listItem.className = "list-group-item";
-                listItem.textContent = item + " - Quantity: " + cart[item];
-                orderList.appendChild(listItem);
+                if (cart.hasOwnProperty(item)) {
+                    var listItem = document.createElement("li");
+                    listItem.className = "list-group-item";
+                    listItem.textContent = item + " - Quantity: " + cart[item];
+                    orderList.appendChild(listItem);
+                }
             }
         }
 
+        // Function to handle order submission
+        function handleOrderSubmission(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            var name = document.getElementById("name").value.trim();
+            var email = document.getElementById("email").value.trim();
+            var address = document.getElementById("address").value.trim();
+            var cart = getCartFromURL();
+
+            if (name === "" || email === "" || address === "") {
+                alert("Please fill in all fields before placing your order.");
+                return;
+            }
+
+            alert("Thank you, " + name + "! Your order has been placed successfully.");
+
+            // Clear the cart after submission
+            localStorage.removeItem("cart");
+
+            // Redirect back to the homepage
+            window.location.href = "index.html";
+        }
+
+        document.getElementById("order-form").addEventListener("submit", handleOrderSubmission);
         window.onload = displayOrder;
     </script>
 </body>
