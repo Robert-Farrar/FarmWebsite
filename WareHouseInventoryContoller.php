@@ -109,17 +109,23 @@ class WareHouseInventoryController{
     }
     
     #Returns dictionary
-    public function getItem($itemName){
-        $path = $this->url."warehouse/itemName"."/".$itemName;
+    public function getItem($itemID){
+        $path = $this->url."warehouse/itemID/".$itemID;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $path);
         curl_setopt($ch,CURLOPT_CUSTOMREQUEST,'GET');
-        curl_setopt($ch,CURLOPT_POSTFIELDS,$itemName);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$itemID);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $result = curl_exec($ch);
         $data = json_decode($result,TRUE);
-        $data['itemImagePath'] = url_decode($data['itemImagePath']);
-        $data['itemDescription'] = urldecode( $data['itemDescription']);
+        if(array_key_exists('itemImagePath',$data)){
+            $data['itemImagePath'] = url_decode($data['itemImagePath']);
+        }
+        if(array_key_exists('itemDescription',$data)){
+            $data['itemDescription'] = urldecode( $data['itemDescription']);
+        }
+        
+       
         return $data;
 
     }
@@ -147,13 +153,13 @@ class WareHouseInventoryController{
 }
 
 
-$whic = new WareHouseInventoryController();
+#$whic = new WareHouseInventoryController();
 
-$lettucePath = '/home/user/Documents/WareHouseInventory/Lettuce.png';
-#$data = $whic->createWareHouseItem(12,'Lettuce','Lettuce Grown on our farm!',20,$lettucePath);
+#$Path = '/home/user/Documents/WareHouseInventory/Tomatoe.png';
+#$data = $whic->createWareHouseItem(15,'Tomatoe','Tomatoe Grown on our farm!',20,$Path);
 
-#$data = $whic->getItem("Lettuce");
+#$data = $whic->getItem(1);
 
-$data = $whic->updateWareHouseItemQuantity("Lettuce",10);
-echo var_dump($data);
+#$data = $whic->updateWareHouseItemQuantity("Lettuce",10);
+#echo var_dump($data);
 ?>
