@@ -1,9 +1,19 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = array();
+if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+    header("Location: home.php");
+    exit();
 }
+
+if (!isset($_SESSION['customerID'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$customerID = $_SESSION['customerID'];
+$orderStatus = "Processing";
+$orderDateCreated = date("Y-m-d");
 
 $orderPlaced = false;
 $error_message = "";
@@ -17,9 +27,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($name === "" || $email === "" || $address === "") {
         $error_message = "Please fill in all fields before placing your order.";
     } else {
-        $_SESSION['cart'] = array(); 
-        $orderPlaced = true;
-        $success_message = "Thank you, " . htmlspecialchars($name) . "! Your order has been placed successfully.";
+        $orderData = json_encode([
+            "customerID" => $customerID,
+            "orderStatus" => $orderStatus,
+            "orderDateCreated" => $orderDateCreated
+        ]);
+
+        $orderApiUrl = "http://order-api:8003/order/create";
+
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $orderApiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $orderData);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200) {
+            $responseData = json_decode($response, true);
+            $orderID = $responseData["orderID"] ?? null;
+
+            if ($orderID) {
+                foreach ($_SESSION['cart'] as $item => $quantity) {
+                    $orderListData = json_encode([
+                        "orderID" => $orderID,
+                        "storeInventoryItemID" => $item, 
+                        "amountSold" => $quantity
+                    ]);
+
+                    $orderListApiUrl = "http://order-api:8003/orderID/$orderID/storeInventoryItemID/$item/amountSold/$quantity";
+
+                    $ch2 = curl_init();
+                    curl_setopt($ch2, CURLOPT_URL, $orderListApiUrl);
+                    curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch2, CURLOPT_POST, true);
+                    curl_setopt($ch2, CURLOPT_POSTFIELDS, $orderListData);
+                    curl_setopt($ch2, CURLOPT_HTTPHEADER, [
+                        'Content-Type: application/json'
+                    ]);
+                    curl_exec($ch2);
+                    curl_close($ch2);
+                }
+
+                $_SESSION['cart'] = [];
+                $orderPlaced = true;
+                $success_message = "✅ Thank you, " . htmlspecialchars($name) . "! Your order has been placed successfully.";
+            } else {
+                $error_message = "Failed to place order. Please try again.";
+            }
+        } else {
+            $error_message = "Order API error. Please try again.";
+        }
     }
 }
 

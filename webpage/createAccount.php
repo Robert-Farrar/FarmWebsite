@@ -1,3 +1,37 @@
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $data = array(
+        "username" => $_POST["username"],
+        "password" => $_POST["password"],
+        "full_name" => $_POST["full_name"],
+        "email" => $_POST["email"],
+        "address" => $_POST["address"],
+        "phone" => $_POST["phone"]
+    );
+
+    $api_url = "http://customer-api:8001/createAccount.php";
+
+    $options = array(
+        "http" => array(
+            "header"  => "Content-Type: application/json",
+            "method"  => "POST",
+            "content" => json_encode($data)
+        )
+    );
+
+    $context = stream_context_create($options);
+    $response = file_get_contents($api_url, false, $context);
+    $result = json_decode($response, true);
+
+    if ($result["success"]) {
+        header("Location: login.php");
+        exit();
+    } else {
+        echo "Error: " . $result["message"];
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

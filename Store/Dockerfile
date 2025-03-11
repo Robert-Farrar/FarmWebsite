@@ -1,12 +1,13 @@
 FROM opensuse/leap:15.6
 WORKDIR /app
 RUN zypper refresh && zypper install -y \
-    python3 \
-    python3-pip \
+    python311 \
+    python311-pip \
     mariadb \
     mariadb-client \
     && zypper clean --all
-
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 && \
+python --version
 COPY . .
 RUN pip3 install --no-cache-dir -r pythonreq.txt
 RUN mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld

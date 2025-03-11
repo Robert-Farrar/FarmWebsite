@@ -1,7 +1,7 @@
 FROM opensuse/leap:15.6
 WORKDIR /app
 RUN zypper refresh && zypper install -y \
-    python3 \
+    python311 \
     python3-pip \
     mariadb \
     mariadb-client \

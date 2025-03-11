@@ -1,3 +1,36 @@
+<?php
+session_start();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $data = array(
+        "username" => $_POST["username"],
+        "password" => $_POST["password"]
+    );
+
+    $api_url = "http://customer-api:8001/login.php"; 
+
+    $options = array(
+        "http" => array(
+            "header"  => "Content-Type: application/json",
+            "method"  => "POST",
+            "content" => json_encode($data)
+        )
+    );
+
+    $context = stream_context_create($options);
+    $response = file_get_contents($api_url, false, $context);
+    $result = json_decode($response, true);
+
+    if ($result["success"]) {
+        $_SESSION["user_id"] = $result["user_id"];
+        $_SESSION["username"] = $_POST["username"];
+        header("Location: index.php"); 
+        exit();
+    } else {
+        echo "Invalid username or password";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
