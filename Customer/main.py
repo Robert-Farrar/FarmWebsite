@@ -11,12 +11,12 @@ base = declarative_base()
 class Customers(base):
     __tablename__ = "Customers"
     customerID = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    passwrd = Column(String)
-    fullName = Column(String)
-    email = Column(String)
-    customerAddress = Column(String)
-    phoneNumber = Column(String)
+    username = Column(String(255))
+    passwrd = Column(String(255))
+    fullName = Column(String(255))
+    email = Column(String(255))
+    customerAddress = Column(String(255))
+    phoneNumber = Column(String(255))
 
 class Customer(BaseModel):
     customerID: Optional[int] = None
@@ -30,7 +30,7 @@ class Customer(BaseModel):
 
 app = FastAPI()
 
-databaseURL = "mysql+pymysql://user:pass@mysql-db:3306/database"
+databaseURL = "mysql+pymysql://user:password@mysql-db:3306/database"
 engine = create_engine(databaseURL)
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 base.metadata.create_all(bind=engine)

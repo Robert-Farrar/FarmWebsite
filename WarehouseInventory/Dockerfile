@@ -9,7 +9,7 @@ RUN zypper refresh && zypper install -y \
 
 COPY . .
 COPY WareHouseInventory.sql /app/WareHouseInventory.sql
-RUN pip3 install --no-cache-dir -r pythonreq.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 RUN mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld
 EXPOSE 8005
 CMD ["/bin/sh", "-c", " \

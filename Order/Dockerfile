@@ -10,7 +10,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 && \
 python --version
 COPY . .
 COPY script2.sql /app/script2.sql
-RUN pip3 install --no-cache-dir -r pythonreq.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 RUN mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld
 EXPOSE 8002
 CMD ["/bin/sh", "-c", " \
